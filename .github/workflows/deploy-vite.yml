@@ -41,6 +41,7 @@ jobs:
         run: pnpm --filter @workspace/exam-prep run build
         env:
           NODE_ENV: production
+          PORT: 3000
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
