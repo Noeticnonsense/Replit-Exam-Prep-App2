@@ -137,3 +137,37 @@ export const SubmitMockExamResponse = zod.object({
 })
 
 
+/**
+ * @summary Detect AI-generated content and explain why
+ */
+export const AnalyzeTextBody = zod.object({
+  "text": zod.string().describe('The text to analyze'),
+  "writingType": zod.enum(['poem', 'essay', 'academic', 'blog', 'story', 'letter', 'article', 'social', 'speech', 'technical', 'other']).describe('The genre\/style of writing')
+})
+
+export const AnalyzeTextResponse = zod.object({
+  "aiProbability": zod.number().describe('Probability (0–100) the text was AI-generated'),
+  "label": zod.enum(['human', 'likely-human', 'mixed', 'likely-ai', 'ai']).describe('Classification label'),
+  "summary": zod.string().describe('One-paragraph plain-English explanation of the verdict'),
+  "reasons": zod.array(zod.string()).describe('Bullet-point reasons why the text reads as AI or human'),
+  "signals": zod.array(zod.object({
+  "phrase": zod.string().describe('The specific phrase or passage flagged'),
+  "reason": zod.string().describe('Why this phrase seems AI-generated')
+})).describe('Specific phrases flagged as AI-like with explanation')
+})
+
+
+/**
+ * @summary Rewrite text to sound more human
+ */
+export const HumanizeTextBody = zod.object({
+  "text": zod.string().describe('The text to humanize'),
+  "writingType": zod.enum(['poem', 'essay', 'academic', 'blog', 'story', 'letter', 'article', 'social', 'speech', 'technical', 'other']).describe('The genre\/style of writing')
+})
+
+export const HumanizeTextResponse = zod.object({
+  "humanizedText": zod.string().describe('The rewritten, more human-sounding version'),
+  "changesExplained": zod.array(zod.string()).describe('List of specific changes made and why they humanize the text')
+})
+
+

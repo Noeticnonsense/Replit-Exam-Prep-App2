@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: exam
     description: Exam preparation operations
+  - name: wordwatch
+    description: AI text detection and humanization
 paths:
   /healthz:
     get:
@@ -103,6 +105,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/MockExamResult"
 
+  /wordwatch/analyze:
+    post:
+      operationId: analyzeText
+      tags: [wordwatch]
+      summary: Detect AI-generated content and explain why
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TextAnalysisInput"
+      responses:
+        "200":
+          description: AI detection result with explanation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TextAnalysisResult"
+
+  /wordwatch/humanize:
+    post:
+      operationId: humanizeText
+      tags: [wordwatch]
+      summary: Rewrite text to sound more human
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HumanizeInput"
+      responses:
+        "200":
+          description: Humanized version of the text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HumanizeResult"
+
 components:
   schemas:
     HealthStatus:
@@ -112,6 +152,92 @@ components:
           type: string
       required:
         - status
+
+    TextAnalysisInput:
+      type: object
+      properties:
+        text:
+          type: string
+          description: The text to analyze
+        writingType:
+          type: string
+          enum: [poem, essay, academic, blog, story, letter, article, social, speech, technical, other]
+          description: The genre/style of writing
+      required:
+        - text
+        - writingType
+
+    AiSignal:
+      type: object
+      properties:
+        phrase:
+          type: string
+          description: The specific phrase or passage flagged
+        reason:
+          type: string
+          description: Why this phrase seems AI-generated
+      required:
+        - phrase
+        - reason
+
+    TextAnalysisResult:
+      type: object
+      properties:
+        aiProbability:
+          type: number
+          description: Probability (0–100) the text was AI-generated
+        label:
+          type: string
+          enum: [human, likely-human, mixed, likely-ai, ai]
+          description: Classification label
+        summary:
+          type: string
+          description: One-paragraph plain-English explanation of the verdict
+        reasons:
+          type: array
+          items:
+            type: string
+          description: Bullet-point reasons why the text reads as AI or human
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiSignal"
+          description: Specific phrases flagged as AI-like with explanation
+      required:
+        - aiProbability
+        - label
+        - summary
+        - reasons
+        - signals
+
+    HumanizeInput:
+      type: object
+      properties:
+        text:
+          type: string
+          description: The text to humanize
+        writingType:
+          type: string
+          enum: [poem, essay, academic, blog, story, letter, article, social, speech, technical, other]
+          description: The genre/style of writing
+      required:
+        - text
+        - writingType
+
+    HumanizeResult:
+      type: object
+      properties:
+        humanizedText:
+          type: string
+          description: The rewritten, more human-sounding version
+        changesExplained:
+          type: array
+          items:
+            type: string
+          description: List of specific changes made and why they humanize the text
+      required:
+        - humanizedText
+        - changesExplained
 
     ExamInput:
       type: object

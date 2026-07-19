@@ -9,6 +9,101 @@ export interface HealthStatus {
   status: string;
 }
 
+/**
+ * The genre/style of writing
+ */
+export type TextAnalysisInputWritingType = typeof TextAnalysisInputWritingType[keyof typeof TextAnalysisInputWritingType];
+
+
+export const TextAnalysisInputWritingType = {
+  poem: 'poem',
+  essay: 'essay',
+  academic: 'academic',
+  blog: 'blog',
+  story: 'story',
+  letter: 'letter',
+  article: 'article',
+  social: 'social',
+  speech: 'speech',
+  technical: 'technical',
+  other: 'other',
+} as const;
+
+export interface TextAnalysisInput {
+  /** The text to analyze */
+  text: string;
+  /** The genre/style of writing */
+  writingType: TextAnalysisInputWritingType;
+}
+
+export interface AiSignal {
+  /** The specific phrase or passage flagged */
+  phrase: string;
+  /** Why this phrase seems AI-generated */
+  reason: string;
+}
+
+/**
+ * Classification label
+ */
+export type TextAnalysisResultLabel = typeof TextAnalysisResultLabel[keyof typeof TextAnalysisResultLabel];
+
+
+export const TextAnalysisResultLabel = {
+  human: 'human',
+  'likely-human': 'likely-human',
+  mixed: 'mixed',
+  'likely-ai': 'likely-ai',
+  ai: 'ai',
+} as const;
+
+export interface TextAnalysisResult {
+  /** Probability (0–100) the text was AI-generated */
+  aiProbability: number;
+  /** Classification label */
+  label: TextAnalysisResultLabel;
+  /** One-paragraph plain-English explanation of the verdict */
+  summary: string;
+  /** Bullet-point reasons why the text reads as AI or human */
+  reasons: string[];
+  /** Specific phrases flagged as AI-like with explanation */
+  signals: AiSignal[];
+}
+
+/**
+ * The genre/style of writing
+ */
+export type HumanizeInputWritingType = typeof HumanizeInputWritingType[keyof typeof HumanizeInputWritingType];
+
+
+export const HumanizeInputWritingType = {
+  poem: 'poem',
+  essay: 'essay',
+  academic: 'academic',
+  blog: 'blog',
+  story: 'story',
+  letter: 'letter',
+  article: 'article',
+  social: 'social',
+  speech: 'speech',
+  technical: 'technical',
+  other: 'other',
+} as const;
+
+export interface HumanizeInput {
+  /** The text to humanize */
+  text: string;
+  /** The genre/style of writing */
+  writingType: HumanizeInputWritingType;
+}
+
+export interface HumanizeResult {
+  /** The rewritten, more human-sounding version */
+  humanizedText: string;
+  /** List of specific changes made and why they humanize the text */
+  changesExplained: string[];
+}
+
 export interface ExamInput {
   /** Name of the exam (e.g. "Real Estate License Exam", "Bar Exam") */
   examName: string;

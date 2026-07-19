@@ -23,11 +23,15 @@ import type {
   ExamInfo,
   ExamInput,
   HealthStatus,
+  HumanizeInput,
+  HumanizeResult,
   MockExam,
   MockExamInput,
   MockExamResult,
   MockExamSubmission,
-  StudyGuide
+  StudyGuide,
+  TextAnalysisInput,
+  TextAnalysisResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -417,5 +421,147 @@ export const useSubmitMockExam = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getSubmitMockExamMutationOptions(options));
+    }
+
+export const getAnalyzeTextUrl = () => {
+
+
+
+
+  return `/api/wordwatch/analyze`
+}
+
+/**
+ * @summary Detect AI-generated content and explain why
+ */
+export const analyzeText = async (textAnalysisInput: TextAnalysisInput, options?: RequestInit): Promise<TextAnalysisResult> => {
+
+  return customFetch<TextAnalysisResult>(getAnalyzeTextUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(textAnalysisInput)
+  }
+);}
+
+
+
+
+
+export const getAnalyzeTextMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeText>>, TError,{data: BodyType<TextAnalysisInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeText>>, TError,{data: BodyType<TextAnalysisInput>}, TContext> => {
+
+const mutationKey = ['analyzeText'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeText>>, {data: BodyType<TextAnalysisInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeText(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeTextMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeText>>>
+    export type AnalyzeTextMutationBody = BodyType<TextAnalysisInput>
+    export type AnalyzeTextMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Detect AI-generated content and explain why
+ */
+export const useAnalyzeText = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeText>>, TError,{data: BodyType<TextAnalysisInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeText>>,
+        TError,
+        {data: BodyType<TextAnalysisInput>},
+        TContext
+      > => {
+      return useMutation(getAnalyzeTextMutationOptions(options));
+    }
+
+export const getHumanizeTextUrl = () => {
+
+
+
+
+  return `/api/wordwatch/humanize`
+}
+
+/**
+ * @summary Rewrite text to sound more human
+ */
+export const humanizeText = async (humanizeInput: HumanizeInput, options?: RequestInit): Promise<HumanizeResult> => {
+
+  return customFetch<HumanizeResult>(getHumanizeTextUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(humanizeInput)
+  }
+);}
+
+
+
+
+
+export const getHumanizeTextMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof humanizeText>>, TError,{data: BodyType<HumanizeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof humanizeText>>, TError,{data: BodyType<HumanizeInput>}, TContext> => {
+
+const mutationKey = ['humanizeText'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof humanizeText>>, {data: BodyType<HumanizeInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  humanizeText(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HumanizeTextMutationResult = NonNullable<Awaited<ReturnType<typeof humanizeText>>>
+    export type HumanizeTextMutationBody = BodyType<HumanizeInput>
+    export type HumanizeTextMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Rewrite text to sound more human
+ */
+export const useHumanizeText = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof humanizeText>>, TError,{data: BodyType<HumanizeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof humanizeText>>,
+        TError,
+        {data: BodyType<HumanizeInput>},
+        TContext
+      > => {
+      return useMutation(getHumanizeTextMutationOptions(options));
     }
 

@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/wordwatch/"
+title = "WordWatch — AI Detector & Humanizer"
+version = "1.0.0"
+id = "artifacts/wordwatch"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/wordwatch/" ]
+localPort = 18864
+
+[services.development]
+run = "pnpm --filter @workspace/wordwatch run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wordwatch", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/wordwatch/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18864"
+BASE_PATH = "/wordwatch/"

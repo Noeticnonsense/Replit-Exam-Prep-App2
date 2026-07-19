@@ -6,12 +6,16 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './aiSignal';
 export * from './examInfo';
 export * from './examInfoExamFormat';
 export * from './examInfoExamFormatSectionsItem';
 export * from './examInput';
 export * from './flashcard';
 export * from './healthStatus';
+export * from './humanizeInput';
+export * from './humanizeInputWritingType';
+export * from './humanizeResult';
 export * from './mnemonic';
 export * from './mockExam';
 export * from './mockExamInput';
@@ -23,3 +27,7 @@ export * from './questionFeedback';
 export * from './studyGuide';
 export * from './studyNote';
 export * from './studyNoteImportance';
+export * from './textAnalysisInput';
+export * from './textAnalysisInputWritingType';
+export * from './textAnalysisResult';
+export * from './textAnalysisResultLabel';
