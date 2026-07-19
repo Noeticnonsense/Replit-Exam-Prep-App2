@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: exam
+    description: Exam preparation operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,83 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /exam/info:
+    post:
+      operationId: getExamInfo
+      tags: [exam]
+      summary: Get exam overview, rules, and process
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamInput"
+      responses:
+        "200":
+          description: Exam information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamInfo"
+
+  /exam/study-guide:
+    post:
+      operationId: getStudyGuide
+      tags: [exam]
+      summary: Generate a comprehensive study guide
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamInput"
+      responses:
+        "200":
+          description: Study guide with notes, flashcards, and mnemonics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyGuide"
+
+  /exam/mock-exam:
+    post:
+      operationId: getMockExam
+      tags: [exam]
+      summary: Generate a mock exam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MockExamInput"
+      responses:
+        "200":
+          description: Mock exam with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockExam"
+
+  /exam/mock-exam/submit:
+    post:
+      operationId: submitMockExam
+      tags: [exam]
+      summary: Submit mock exam answers and get scored results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MockExamSubmission"
+      responses:
+        "200":
+          description: Scored results with explanations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockExamResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +113,312 @@ components:
       required:
         - status
 
+    ExamInput:
+      type: object
+      properties:
+        examName:
+          type: string
+          description: Name of the exam (e.g. "Real Estate License Exam", "Bar Exam")
+        state:
+          type: string
+          description: US state where the exam will be taken (e.g. "California", "Texas")
+      required:
+        - examName
+        - state
+
+    ExamInfo:
+      type: object
+      properties:
+        examName:
+          type: string
+        state:
+          type: string
+        overview:
+          type: string
+          description: High-level summary of the exam
+        eligibilityRequirements:
+          type: array
+          items:
+            type: string
+          description: Requirements to be eligible to take the exam
+        examFormat:
+          type: object
+          properties:
+            questionCount:
+              type: ["integer", "null"]
+            duration:
+              type: ["string", "null"]
+            sections:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  questionCount:
+                    type: ["integer", "null"]
+                required:
+                  - name
+                  - description
+                  - questionCount
+          required:
+            - questionCount
+            - duration
+            - sections
+        passingScore:
+          type: string
+          description: Minimum passing score or requirement
+        registrationProcess:
+          type: array
+          items:
+            type: string
+          description: Steps to register for the exam
+        examDayTips:
+          type: array
+          items:
+            type: string
+          description: Tips for exam day
+        keyTopics:
+          type: array
+          items:
+            type: string
+          description: Major topics covered on the exam
+        stateSpecificNotes:
+          type: string
+          description: Any state-specific rules or variations
+      required:
+        - examName
+        - state
+        - overview
+        - eligibilityRequirements
+        - examFormat
+        - passingScore
+        - registrationProcess
+        - examDayTips
+        - keyTopics
+        - stateSpecificNotes
+
+    StudyNote:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        importance:
+          type: string
+          enum: [high, medium, low]
+      required:
+        - title
+        - content
+        - importance
+
+    Flashcard:
+      type: object
+      properties:
+        id:
+          type: string
+        front:
+          type: string
+        back:
+          type: string
+        category:
+          type: string
+      required:
+        - id
+        - front
+        - back
+        - category
+
+    Mnemonic:
+      type: object
+      properties:
+        concept:
+          type: string
+        mnemonic:
+          type: string
+        explanation:
+          type: string
+      required:
+        - concept
+        - mnemonic
+        - explanation
+
+    StudyGuide:
+      type: object
+      properties:
+        examName:
+          type: string
+        state:
+          type: string
+        studyPlan:
+          type: string
+          description: Recommended study approach and timeline
+        notes:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudyNote"
+        flashcards:
+          type: array
+          items:
+            $ref: "#/components/schemas/Flashcard"
+        mnemonics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Mnemonic"
+        recommendedResources:
+          type: array
+          items:
+            type: string
+      required:
+        - examName
+        - state
+        - studyPlan
+        - notes
+        - flashcards
+        - mnemonics
+        - recommendedResources
+
+    MockExamInput:
+      type: object
+      properties:
+        examName:
+          type: string
+        state:
+          type: string
+        questionCount:
+          type: integer
+          description: Number of questions (default 20)
+      required:
+        - examName
+        - state
+
+    MockQuestion:
+      type: object
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+          description: Answer options (A, B, C, D)
+        category:
+          type: string
+      required:
+        - id
+        - question
+        - options
+        - category
+
+    MockExam:
+      type: object
+      properties:
+        examName:
+          type: string
+        state:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/MockQuestion"
+        timeLimit:
+          type: ["integer", "null"]
+          description: Suggested time limit in minutes
+      required:
+        - examName
+        - state
+        - questions
+        - timeLimit
+
+    QuestionAnswer:
+      type: object
+      properties:
+        questionId:
+          type: string
+        selectedAnswer:
+          type: string
+          description: The letter of the selected answer (A, B, C, or D)
+      required:
+        - questionId
+        - selectedAnswer
+
+    MockExamSubmission:
+      type: object
+      properties:
+        examName:
+          type: string
+        state:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/MockQuestion"
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionAnswer"
+      required:
+        - examName
+        - state
+        - questions
+        - answers
+
+    QuestionFeedback:
+      type: object
+      properties:
+        questionId:
+          type: string
+        correct:
+          type: boolean
+        correctAnswer:
+          type: string
+        explanation:
+          type: string
+        yourAnswer:
+          type: string
+      required:
+        - questionId
+        - correct
+        - correctAnswer
+        - explanation
+        - yourAnswer
+
+    MockExamResult:
+      type: object
+      properties:
+        examName:
+          type: string
+        state:
+          type: string
+        score:
+          type: number
+          description: Percentage score (0-100)
+        passed:
+          type: boolean
+        totalQuestions:
+          type: integer
+        correctAnswers:
+          type: integer
+        feedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionFeedback"
+        studyRecommendations:
+          type: array
+          items:
+            type: string
+          description: Areas to focus on based on incorrect answers
+      required:
+        - examName
+        - state
+        - score
+        - passed
+        - totalQuestions
+        - correctAnswers
+        - feedback
+        - studyRecommendations

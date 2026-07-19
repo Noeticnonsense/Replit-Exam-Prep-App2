@@ -3,28 +3,25 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { ExamProvider } from '@/context/ExamContext';
+import { Shell } from '@/components/layout/Shell';
+
+import Home from '@/pages/Home';
+import ExamInfo from '@/pages/ExamInfo';
+import StudyGuide from '@/pages/StudyGuide';
+import MockExam from '@/pages/MockExam';
+import Results from '@/pages/Results';
 
 const queryClient = new QueryClient();
-
-function Home() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Replit Agent is building...
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Your app will appear here once it's ready.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/exam-info" component={ExamInfo} />
+      <Route path="/study-guide" component={StudyGuide} />
+      <Route path="/mock-exam" component={MockExam} />
+      <Route path="/results" component={Results} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -34,9 +31,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
-        </WouterRouter>
+        <ExamProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <Shell>
+              <Router />
+            </Shell>
+          </WouterRouter>
+        </ExamProvider>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
