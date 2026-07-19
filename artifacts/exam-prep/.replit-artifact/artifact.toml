@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Exam Prep AI"
+version = "1.0.0"
+id = "artifacts/exam-prep"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25513
+
+[services.development]
+run = "pnpm --filter @workspace/exam-prep run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/exam-prep", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/exam-prep/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25513"
+BASE_PATH = "/"
