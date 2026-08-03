@@ -138,6 +138,15 @@ export const SubmitMockExamResponse = zod.object({
 
 
 /**
+ * @summary Check if the current user has an active membership
+ */
+export const GetMembershipResponse = zod.object({
+  "active": zod.boolean().describe('Whether the user has an active paid membership'),
+  "plan": zod.string().nullable().describe('The plan name if active')
+})
+
+
+/**
  * @summary Detect AI-generated content and explain why
  */
 export const AnalyzeTextBody = zod.object({

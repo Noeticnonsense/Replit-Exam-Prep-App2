@@ -16,6 +16,7 @@ export * from './healthStatus';
 export * from './humanizeInput';
 export * from './humanizeInputWritingType';
 export * from './humanizeResult';
+export * from './membershipStatus';
 export * from './mnemonic';
 export * from './mockExam';
 export * from './mockExamInput';

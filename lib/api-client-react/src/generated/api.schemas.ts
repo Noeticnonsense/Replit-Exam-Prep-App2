@@ -9,6 +9,16 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface MembershipStatus {
+  /** Whether the user has an active paid membership */
+  active: boolean;
+  /**
+     * The plan name if active
+     * @nullable
+     */
+  plan: string | null;
+}
+
 /**
  * The genre/style of writing
  */

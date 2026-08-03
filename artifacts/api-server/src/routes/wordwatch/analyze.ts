@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { AnalyzeTextBody } from "@workspace/api-zod";
+import { requireAuth } from "../../middlewares/requireAuth";
 
 const router = Router();
 
-router.post("/analyze", async (req, res) => {
+router.post("/analyze", requireAuth, async (req, res) => {
   const parsed = AnalyzeTextBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid request body" });

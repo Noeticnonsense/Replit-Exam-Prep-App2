@@ -105,6 +105,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/MockExamResult"
 
+  /wordwatch/membership:
+    get:
+      operationId: getMembership
+      tags: [wordwatch]
+      summary: Check if the current user has an active membership
+      responses:
+        "200":
+          description: Membership status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MembershipStatus"
+        "401":
+          description: Unauthorized
+
   /wordwatch/analyze:
     post:
       operationId: analyzeText
@@ -152,6 +167,19 @@ components:
           type: string
       required:
         - status
+
+    MembershipStatus:
+      type: object
+      properties:
+        active:
+          type: boolean
+          description: Whether the user has an active paid membership
+        plan:
+          type: ["string", "null"]
+          description: The plan name if active
+      required:
+        - active
+        - plan
 
     TextAnalysisInput:
       type: object

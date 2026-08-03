@@ -25,6 +25,7 @@ import type {
   HealthStatus,
   HumanizeInput,
   HumanizeResult,
+  MembershipStatus,
   MockExam,
   MockExamInput,
   MockExamResult,
@@ -422,6 +423,83 @@ export const useSubmitMockExam = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getSubmitMockExamMutationOptions(options));
     }
+
+export const getGetMembershipUrl = () => {
+
+
+
+
+  return `/api/wordwatch/membership`
+}
+
+/**
+ * @summary Check if the current user has an active membership
+ */
+export const getMembership = async ( options?: RequestInit): Promise<MembershipStatus> => {
+
+  return customFetch<MembershipStatus>(getGetMembershipUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMembershipQueryKey = () => {
+    return [
+    `/api/wordwatch/membership`
+    ] as const;
+    }
+
+
+export const getGetMembershipQueryOptions = <TData = Awaited<ReturnType<typeof getMembership>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMembership>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMembershipQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMembership>>> = ({ signal }) => getMembership({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMembership>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMembershipQueryResult = NonNullable<Awaited<ReturnType<typeof getMembership>>>
+export type GetMembershipQueryError = ErrorType<void>
+
+
+/**
+ * @summary Check if the current user has an active membership
+ */
+
+export function useGetMembership<TData = Awaited<ReturnType<typeof getMembership>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMembership>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMembershipQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getAnalyzeTextUrl = () => {
 
