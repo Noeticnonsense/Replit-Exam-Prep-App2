@@ -120,6 +120,36 @@ paths:
         "401":
           description: Unauthorized
 
+  /wordwatch/checkout:
+    post:
+      operationId: startCheckout
+      tags: [wordwatch]
+      summary: Create a Whop checkout session and return the hosted checkout URL
+      responses:
+        "200":
+          description: Checkout URL to redirect the user to
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutResponse"
+        "401":
+          description: Unauthorized
+
+  /wordwatch/checkout/verify:
+    post:
+      operationId: verifyCheckout
+      tags: [wordwatch]
+      summary: Verify a completed Whop checkout and activate the user's membership
+      responses:
+        "200":
+          description: Updated membership status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MembershipStatus"
+        "401":
+          description: Unauthorized
+
   /wordwatch/analyze:
     post:
       operationId: analyzeText
@@ -180,6 +210,15 @@ components:
       required:
         - active
         - plan
+
+    CheckoutResponse:
+      type: object
+      properties:
+        checkoutUrl:
+          type: string
+          description: The Whop-hosted checkout URL to redirect the user to
+      required:
+        - checkoutUrl
 
     TextAnalysisInput:
       type: object

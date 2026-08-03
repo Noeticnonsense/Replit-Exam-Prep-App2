@@ -19,6 +19,11 @@ export interface MembershipStatus {
   plan: string | null;
 }
 
+export interface CheckoutResponse {
+  /** The Whop-hosted checkout URL to redirect the user to */
+  checkoutUrl: string;
+}
+
 /**
  * The genre/style of writing
  */

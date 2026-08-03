@@ -1,16 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { useAnalyzeText, useHumanizeText, useGetMembership } from '@workspace/api-client-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useAnalyzeText, useHumanizeText, useGetMembership, useStartCheckout, useVerifyCheckout } from '@workspace/api-client-react';
 import type { TextAnalysisResult, HumanizeResult } from '@workspace/api-client-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Search, Feather, Info, AlertTriangle, Sparkles, CheckCircle2, LogOut } from 'lucide-react';
+import { Copy, Search, Feather, Info, AlertTriangle, Sparkles, CheckCircle2, Lock, Crown, Loader2 } from 'lucide-react';
 import { Gauge } from '@/components/gauge';
 import { EngagingLoader } from '@/components/engaging-loader';
-import { useUser, useClerk } from '@clerk/react';
-import { Link } from 'wouter';
+import { useLocation } from 'wouter';
 
 const WRITING_TYPES = [
   { value: 'poem', label: 'Poem' },
@@ -26,9 +25,9 @@ const WRITING_TYPES = [
   { value: 'other', label: 'Other' },
 ];
 
-function AnalysisResultView({ result }: { result: TextAnalysisResult }) {
+function AnalysisResultView({ result, isMember }: { result: TextAnalysisResult; isMember: boolean }) {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col items-center pb-8 border-b border-border/50">
         <h3 className="font-serif text-2xl text-foreground mb-8">Verification Result</h3>
         <Gauge value={result.aiProbability} label={result.label} />
@@ -44,50 +43,57 @@ function AnalysisResultView({ result }: { result: TextAnalysisResult }) {
         </p>
       </div>
 
-      {result.reasons && result.reasons.length > 0 && (
-        <div className="space-y-4">
-          <h4 className="font-serif text-lg text-primary flex items-center gap-2">
-            <Search className="w-5 h-5" />
-            Key Indicators
-          </h4>
-          <ul className="space-y-3">
-            {result.reasons.map((reason, i) => (
-              <li key={i} className="flex items-start gap-3 text-foreground/80">
-                <div className="mt-2 w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0" />
-                <span className="leading-relaxed">{reason}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Gated section — blurred for non-members */}
+      <div className={`space-y-8 relative transition-all duration-300 ${!isMember ? 'pointer-events-none select-none' : ''}`}>
+        {!isMember && (
+          <div className="absolute inset-0 z-10 backdrop-blur-sm rounded-xl" />
+        )}
 
-      {result.signals && result.signals.length > 0 && (
-        <div className="space-y-4">
-          <h4 className="font-serif text-lg text-primary flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5" />
-            Flagged Passages
-          </h4>
+        {result.reasons && result.reasons.length > 0 && (
           <div className="space-y-4">
-            {result.signals.map((signal, i) => (
-              <div key={i} className="p-5 rounded-xl bg-card border border-border/40 shadow-sm space-y-3 relative overflow-hidden group hover:border-primary/30 transition-colors">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/40 group-hover:bg-primary transition-colors" />
-                <div className="font-serif text-foreground/90 italic text-lg leading-relaxed pl-2">
-                  "{signal.phrase}"
-                </div>
-                <div className="text-sm text-muted-foreground pl-2 flex items-start gap-2">
-                  <span className="text-primary/70 shrink-0 mt-0.5">↳</span>
-                  {signal.reason}
-                </div>
-              </div>
-            ))}
+            <h4 className="font-serif text-lg text-primary flex items-center gap-2">
+              <Search className="w-5 h-5" />
+              Key Indicators
+            </h4>
+            <ul className="space-y-3">
+              {result.reasons.map((reason, i) => (
+                <li key={i} className="flex items-start gap-3 text-foreground/80">
+                  <div className="mt-2 w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0" />
+                  <span className="leading-relaxed">{reason}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      )}
+        )}
+
+        {result.signals && result.signals.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="font-serif text-lg text-primary flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Flagged Passages
+            </h4>
+            <div className="space-y-4">
+              {result.signals.map((signal, i) => (
+                <div key={i} className="p-5 rounded-xl bg-card border border-border/40 shadow-sm space-y-3 relative overflow-hidden group hover:border-primary/30 transition-colors">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/40 group-hover:bg-primary transition-colors" />
+                  <div className="font-serif text-foreground/90 italic text-lg leading-relaxed pl-2">
+                    "{signal.phrase}"
+                  </div>
+                  <div className="text-sm text-muted-foreground pl-2 flex items-start gap-2">
+                    <span className="text-primary/70 shrink-0 mt-0.5">↳</span>
+                    {signal.reason}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-function HumanizeResultView({ result }: { result: HumanizeResult }) {
+function HumanizeResultView({ result, isMember }: { result: HumanizeResult; isMember: boolean }) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -102,7 +108,7 @@ function HumanizeResultView({ result }: { result: HumanizeResult }) {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 h-full flex flex-col pb-10">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 h-full flex flex-col">
       <div className="flex items-center justify-between pb-6 border-b border-border/50">
         <h3 className="font-serif text-2xl text-foreground">Translated Reality</h3>
         <Button 
@@ -116,7 +122,11 @@ function HumanizeResultView({ result }: { result: HumanizeResult }) {
         </Button>
       </div>
 
-      <div className="flex-1 space-y-8">
+      <div className={`flex-1 space-y-8 relative transition-all duration-300 ${!isMember ? 'pointer-events-none select-none' : ''}`}>
+        {!isMember && (
+          <div className="absolute inset-0 z-10 backdrop-blur-sm rounded-xl" />
+        )}
+
         <div className="p-6 md:p-8 rounded-xl bg-card border border-border/40 shadow-sm relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[50px] pointer-events-none" />
           <p className="whitespace-pre-wrap text-foreground/90 leading-relaxed font-serif text-lg md:text-xl relative z-10">
@@ -145,19 +155,100 @@ function HumanizeResultView({ result }: { result: HumanizeResult }) {
   );
 }
 
-export default function WordWatchApp() {
+function PaywallOverlay({ onUpgrade, isLoading }: { onUpgrade: () => void; isLoading: boolean }) {
+  return (
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-end pb-10 pointer-events-none">
+      {/* fade-from-transparent gradient at the bottom of the results */}
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background/95 via-background/70 to-transparent pointer-events-none rounded-b-2xl" />
+      
+      <div className="relative pointer-events-auto flex flex-col items-center gap-5 text-center px-6 max-w-sm">
+        <div className="flex items-center gap-2 text-primary/80">
+          <Lock className="w-5 h-5" />
+          <span className="font-serif text-lg">Full Results Locked</span>
+        </div>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Unlock Key Indicators, Flagged Passages, and Humanized text with a WordWatch Pro membership.
+        </p>
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60 font-mono">
+          <Crown className="w-3.5 h-3.5 text-primary/60" />
+          <span>$9.99 / month — cancel anytime</span>
+        </div>
+        <Button
+          onClick={onUpgrade}
+          disabled={isLoading}
+          className="h-12 px-8 font-serif text-base tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 border border-primary/50 shadow-[0_0_30px_rgba(201,168,76,0.3)] hover:shadow-[0_0_40px_rgba(201,168,76,0.45)] transition-all"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Preparing checkout…
+            </>
+          ) : (
+            <>
+              <Crown className="w-4 h-4 mr-2 opacity-80" />
+              Unlock Full Results
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
   const [text, setText] = useState("");
   const [writingType, setWritingType] = useState("essay");
   const { toast } = useToast();
-  
-  const { user } = useUser();
-  const { signOut } = useClerk();
-
-  const { data: membership } = useGetMembership();
-  const isMember = membership?.active === true;
+  const [, setLocation] = useLocation();
 
   const analyzeMutation = useAnalyzeText();
   const humanizeMutation = useHumanizeText();
+  const startCheckoutMutation = useStartCheckout();
+  const verifyCheckoutMutation = useVerifyCheckout();
+
+  const membershipQuery = useGetMembership({
+    query: { staleTime: 30_000, refetchOnWindowFocus: true },
+  });
+
+  const isMember = membershipQuery.data?.active === true;
+
+  // On mount, check if user is returning from Whop checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "complete") {
+      // Strip the query param from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("checkout");
+      window.history.replaceState({}, "", url.toString());
+
+      // Verify the payment server-side
+      verifyCheckoutMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          if (data.active) {
+            membershipQuery.refetch();
+            toast({
+              title: "Welcome to WordWatch Pro!",
+              description: "Your membership is now active. Full results unlocked.",
+            });
+          } else {
+            toast({
+              title: "Payment pending",
+              description: "We couldn't confirm your payment yet. Please wait a moment and refresh.",
+              variant: "destructive",
+            });
+          }
+        },
+        onError: () => {
+          toast({
+            title: "Verification failed",
+            description: "Please contact support if you were charged.",
+            variant: "destructive",
+          });
+        },
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const wordCount = useMemo(() => {
     return text.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -185,38 +276,64 @@ export default function WordWatchApp() {
     });
   };
 
-  const isLoading = analyzeMutation.isPending || humanizeMutation.isPending;
-  const hasResult = analyzeMutation.data || humanizeMutation.data;
-  const showPaywall = !isMember && hasResult;
+  const handleUpgrade = () => {
+    startCheckoutMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        // Redirect to Whop hosted checkout
+        window.location.href = data.checkoutUrl;
+      },
+      onError: () => {
+        toast({
+          title: "Checkout unavailable",
+          description: "Could not start checkout. Please try again.",
+          variant: "destructive",
+        });
+      },
+    });
+  };
 
-  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const hasResults = analyzeMutation.data || humanizeMutation.data;
+  const showPaywall = hasResults && !isMember;
+  const isLoading = analyzeMutation.isPending || humanizeMutation.isPending;
 
   return (
     <div className="min-h-[100dvh] flex flex-col selection:bg-primary/30 selection:text-primary">
       <header className="border-b border-border/40 bg-background/95 backdrop-blur z-20 sticky top-0">
         <div className="container flex h-16 items-center justify-between max-w-screen-2xl mx-auto px-4 md:px-8">
-          <Link href="/app" className="flex items-center gap-4 hover:opacity-90 transition-opacity">
-            <img src={`${basePath}/logo.svg`} alt="Noeticnonsense" className="h-8 w-8 drop-shadow-md" />
+          <div className="flex items-center gap-4">
+            <img src={import.meta.env.BASE_URL + 'noeticnonsense-logo.png'} alt="Noeticnonsense" className="h-10 w-10 drop-shadow-md" />
             <div className="flex items-baseline gap-2">
               <span className="font-serif text-xl font-medium tracking-wide text-foreground">WordWatch</span>
               <span className="text-muted-foreground text-sm font-serif italic hidden sm:inline-block">— Noeticnonsense</span>
             </div>
-          </Link>
-          
-          <div className="flex items-center gap-6">
-            <span className="text-sm font-medium text-foreground/80 font-sans hidden sm:inline-block">
-              {user?.firstName || user?.emailAddresses[0]?.emailAddress}
-            </span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => signOut({ redirectUrl: basePath || '/' })}
-              className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 font-sans gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
           </div>
+
+          {/* Membership badge */}
+          {membershipQuery.data && (
+            <div className="flex items-center gap-2">
+              {isMember ? (
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-medium font-serif">
+                  <Crown className="w-3.5 h-3.5" />
+                  Pro
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleUpgrade}
+                  disabled={startCheckoutMutation.isPending}
+                  className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-serif text-xs h-8"
+                >
+                  {startCheckoutMutation.isPending ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Crown className="w-3.5 h-3.5" />
+                  )}
+                  Upgrade to Pro
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
@@ -286,6 +403,13 @@ export default function WordWatchApp() {
                   Humanize Text
                 </Button>
               </div>
+
+              {/* Free tier note */}
+              {!isMember && !membershipQuery.isLoading && (
+                <p className="text-xs text-muted-foreground/50 text-center font-serif italic">
+                  Free: Verdict summary only. <button onClick={handleUpgrade} className="text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">Upgrade to Pro</button> for full indicators & humanized text.
+                </p>
+              )}
             </div>
           </div>
 
@@ -295,13 +419,13 @@ export default function WordWatchApp() {
             <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
             
-            <div className={`relative z-10 h-full overflow-y-auto pr-2 custom-scrollbar ${showPaywall ? 'pb-[200px]' : ''}`}>
+            <div className="relative z-10 h-full overflow-y-auto pr-2 custom-scrollbar">
               {isLoading ? (
                 <EngagingLoader type={analyzeMutation.isPending ? 'analyze' : 'humanize'} />
               ) : analyzeMutation.data ? (
-                <AnalysisResultView result={analyzeMutation.data} />
+                <AnalysisResultView result={analyzeMutation.data} isMember={isMember} />
               ) : humanizeMutation.data ? (
-                <HumanizeResultView result={humanizeMutation.data} />
+                <HumanizeResultView result={humanizeMutation.data} isMember={isMember} />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center space-y-6 opacity-50 transition-opacity hover:opacity-80">
                   <div className="w-24 h-24 rounded-full border border-border/50 flex items-center justify-center bg-card/50 shadow-inner">
@@ -317,24 +441,12 @@ export default function WordWatchApp() {
               )}
             </div>
 
-            {/* Paywall Overlay */}
-            {showPaywall && (
-              <div className="absolute inset-0 top-[35%] z-20 flex flex-col items-center justify-end pb-12 px-6 pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background backdrop-blur-[6px] [mask-image:linear-gradient(to_bottom,transparent,black_20%)]" />
-                
-                <div className="relative z-30 bg-card/90 backdrop-blur-md border border-primary/30 rounded-xl p-8 shadow-2xl shadow-black text-center space-y-5 max-w-md w-full pointer-events-auto">
-                  <h4 className="font-serif text-2xl text-primary">Unlock Full Results</h4>
-                  <p className="text-base text-foreground/80 leading-relaxed font-sans">
-                    Become a member to see the complete analysis — every flagged signal, full reasoning, and humanized text.
-                  </p>
-                  <Button 
-                    onClick={() => toast({ title: "Choose a plan to unlock full access", description: "Membership plans are coming soon." })}
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-serif text-lg tracking-wide shadow-[0_0_15px_rgba(204,153,51,0.2)]"
-                  >
-                    Get Membership
-                  </Button>
-                </div>
-              </div>
+            {/* Paywall overlay — sits above the results panel */}
+            {showPaywall && !isLoading && (
+              <PaywallOverlay
+                onUpgrade={handleUpgrade}
+                isLoading={startCheckoutMutation.isPending}
+              />
             )}
           </div>
 

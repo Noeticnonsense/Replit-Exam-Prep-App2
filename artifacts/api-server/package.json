@@ -12,6 +12,7 @@
   "dependencies": {
     "@clerk/express": "^2.1.49",
     "@clerk/shared": "^4.25.10",
+    "@whop/sdk": "^0.0.42",
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/integrations-openai-ai-server": "workspace:*",
