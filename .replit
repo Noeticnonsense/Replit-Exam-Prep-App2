@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-20", "web", "bash"]
 
 [deployment]
 router = "application"
@@ -27,3 +27,6 @@ defaultBucketID = "replit-objstore-04a01f73-80fe-4bba-92a5-b3153a98dd6b"
 [userenv.shared]
 WHOP_COMPANY_ID = "biz_SIRiA5olhGiS4e"
 WHOP_PLAN_ID = "plan_8QGhfKh37k1yU"
+
+[nix]
+channel = "stable-25_05"
