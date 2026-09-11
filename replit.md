@@ -10,11 +10,11 @@ An AI-powered exam preparation app. Enter any exam name and state to get an up-t
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL`, `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY`
+- Replit provisions `DATABASE_URL` and the `AI_INTEGRATIONS_OPENAI_*` values used by the app.
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
+- pnpm workspaces, Node.js 20, TypeScript 5.9
 - Frontend: React + Vite + Tailwind CSS + wouter
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM (conversations + messages tables from OpenAI integration)

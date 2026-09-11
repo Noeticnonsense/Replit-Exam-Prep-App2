@@ -147,6 +147,23 @@ export const GetMembershipResponse = zod.object({
 
 
 /**
+ * @summary Create a Whop checkout session and return the hosted checkout URL
+ */
+export const StartCheckoutResponse = zod.object({
+  "checkoutUrl": zod.string().describe('The Whop-hosted checkout URL to redirect the user to')
+})
+
+
+/**
+ * @summary Verify a completed Whop checkout and activate the user's membership
+ */
+export const VerifyCheckoutResponse = zod.object({
+  "active": zod.boolean().describe('Whether the user has an active paid membership'),
+  "plan": zod.string().nullable().describe('The plan name if active')
+})
+
+
+/**
  * @summary Detect AI-generated content and explain why
  */
 export const AnalyzeTextBody = zod.object({

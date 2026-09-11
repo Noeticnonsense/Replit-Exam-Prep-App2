@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { useExamContext } from '@/context/ExamContext';
 import { useGetStudyGuide } from '@workspace/api-client-react';
 import { ArrowRight, FileText, Lightbulb, Copy, BrainCircuit, BookOpen } from 'lucide-react';
-import type { StudyNote, Flashcard as FlashcardType, Mnemonic } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { StudyNote, Flashcard as FlashcardType, Mnemonic } from '@workspace/api-client-react';
 
 export default function StudyGuide() {
   const [, setLocation] = useLocation();

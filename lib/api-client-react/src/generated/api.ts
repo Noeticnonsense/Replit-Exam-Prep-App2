@@ -502,6 +502,148 @@ export function useGetMembership<TData = Awaited<ReturnType<typeof getMembership
 
 
 
+export const getStartCheckoutUrl = () => {
+
+
+
+
+  return `/api/wordwatch/checkout`
+}
+
+/**
+ * @summary Create a Whop checkout session and return the hosted checkout URL
+ */
+export const startCheckout = async ( options?: RequestInit): Promise<CheckoutResponse> => {
+
+  return customFetch<CheckoutResponse>(getStartCheckoutUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getStartCheckoutMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startCheckout>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startCheckout>>, TError,void, TContext> => {
+
+const mutationKey = ['startCheckout'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startCheckout>>, void> = () => {
+
+
+          return  startCheckout(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartCheckoutMutationResult = NonNullable<Awaited<ReturnType<typeof startCheckout>>>
+
+    export type StartCheckoutMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a Whop checkout session and return the hosted checkout URL
+ */
+export const useStartCheckout = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startCheckout>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startCheckout>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getStartCheckoutMutationOptions(options));
+    }
+
+export const getVerifyCheckoutUrl = () => {
+
+
+
+
+  return `/api/wordwatch/checkout/verify`
+}
+
+/**
+ * @summary Verify a completed Whop checkout and activate the user's membership
+ */
+export const verifyCheckout = async ( options?: RequestInit): Promise<MembershipStatus> => {
+
+  return customFetch<MembershipStatus>(getVerifyCheckoutUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getVerifyCheckoutMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyCheckout>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyCheckout>>, TError,void, TContext> => {
+
+const mutationKey = ['verifyCheckout'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyCheckout>>, void> = () => {
+
+
+          return  verifyCheckout(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyCheckoutMutationResult = NonNullable<Awaited<ReturnType<typeof verifyCheckout>>>
+
+    export type VerifyCheckoutMutationError = ErrorType<void>
+
+    /**
+ * @summary Verify a completed Whop checkout and activate the user's membership
+ */
+export const useVerifyCheckout = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyCheckout>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifyCheckout>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getVerifyCheckoutMutationOptions(options));
+    }
+
 export const getAnalyzeTextUrl = () => {
 
 
@@ -572,96 +714,6 @@ export const useAnalyzeText = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getAnalyzeTextMutationOptions(options));
     }
-
-// ─── Checkout ────────────────────────────────────────────────────────────────
-
-export const getStartCheckoutUrl = () => `/api/wordwatch/checkout`;
-
-/**
- * @summary Create a Whop checkout session and return the hosted checkout URL
- */
-export const startCheckout = async (options?: RequestInit): Promise<CheckoutResponse> => {
-  return customFetch<CheckoutResponse>(getStartCheckoutUrl(), {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-  });
-};
-
-export const getStartCheckoutMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(
-  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof startCheckout>>, TError, void, TContext>; request?: SecondParameter<typeof customFetch> }
-): UseMutationOptions<Awaited<ReturnType<typeof startCheckout>>, TError, void, TContext> => {
-  const mutationKey = ['startCheckout'];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
-
-  const mutationFn: MutationFunction<Awaited<ReturnType<typeof startCheckout>>, void> = () => {
-    return startCheckout(requestOptions);
-  };
-
-  return { mutationFn, ...mutationOptions };
-};
-
-export type StartCheckoutMutationResult = NonNullable<Awaited<ReturnType<typeof startCheckout>>>;
-export type StartCheckoutMutationError = ErrorType<unknown>;
-
-/**
- * @summary Create a Whop checkout session and return the hosted checkout URL
- */
-export const useStartCheckout = <TError = ErrorType<unknown>, TContext = unknown>(
-  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof startCheckout>>, TError, void, TContext>; request?: SecondParameter<typeof customFetch> }
-): UseMutationResult<Awaited<ReturnType<typeof startCheckout>>, TError, void, TContext> => {
-  return useMutation(getStartCheckoutMutationOptions(options));
-};
-
-// ─── Checkout Verify ─────────────────────────────────────────────────────────
-
-export const getVerifyCheckoutUrl = () => `/api/wordwatch/checkout/verify`;
-
-/**
- * @summary Verify a completed Whop checkout and activate the user's membership
- */
-export const verifyCheckout = async (options?: RequestInit): Promise<MembershipStatus> => {
-  return customFetch<MembershipStatus>(getVerifyCheckoutUrl(), {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-  });
-};
-
-export const getVerifyCheckoutMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(
-  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof verifyCheckout>>, TError, void, TContext>; request?: SecondParameter<typeof customFetch> }
-): UseMutationOptions<Awaited<ReturnType<typeof verifyCheckout>>, TError, void, TContext> => {
-  const mutationKey = ['verifyCheckout'];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
-
-  const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyCheckout>>, void> = () => {
-    return verifyCheckout(requestOptions);
-  };
-
-  return { mutationFn, ...mutationOptions };
-};
-
-export type VerifyCheckoutMutationResult = NonNullable<Awaited<ReturnType<typeof verifyCheckout>>>;
-export type VerifyCheckoutMutationError = ErrorType<unknown>;
-
-/**
- * @summary Verify a completed Whop checkout and activate the user's membership
- */
-export const useVerifyCheckout = <TError = ErrorType<unknown>, TContext = unknown>(
-  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof verifyCheckout>>, TError, void, TContext>; request?: SecondParameter<typeof customFetch> }
-): UseMutationResult<Awaited<ReturnType<typeof verifyCheckout>>, TError, void, TContext> => {
-  return useMutation(getVerifyCheckoutMutationOptions(options));
-};
-
-// ─── Humanize ────────────────────────────────────────────────────────────────
 
 export const getHumanizeTextUrl = () => {
 

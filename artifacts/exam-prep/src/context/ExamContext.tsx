@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { MockExam, MockExamResult } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { MockExam, MockExamResult } from '@workspace/api-client-react';
 
 interface ExamContextType {
   examName: string;

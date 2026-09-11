@@ -23,18 +23,6 @@ export default function ExamInfo() {
     }
   }, [examName, state, setLocation]);
 
-  if (getExamInfo.isPending || !getExamInfo.data) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
-        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-8"></div>
-        <h2 className="font-serif text-3xl font-semibold text-foreground mb-4">Analyzing Requirements...</h2>
-        <p className="text-lg text-muted-foreground text-center max-w-md leading-relaxed">
-          Gathering the latest official guidelines for the {examName} in {state}. This usually takes about 10-15 seconds.
-        </p>
-      </div>
-    );
-  }
-
   if (getExamInfo.isError) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -44,6 +32,18 @@ export default function ExamInfo() {
         <button onClick={() => getExamInfo.mutate({ data: { examName, state } })} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
           Try Again
         </button>
+      </div>
+    );
+  }
+
+  if (getExamInfo.isPending || !getExamInfo.data) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
+        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-8"></div>
+        <h2 className="font-serif text-3xl font-semibold text-foreground mb-4">Analyzing Requirements...</h2>
+        <p className="text-lg text-muted-foreground text-center max-w-md leading-relaxed">
+          Gathering the latest official guidelines for the {examName} in {state}. This usually takes about 10-15 seconds.
+        </p>
       </div>
     );
   }

@@ -42,6 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Resolve publishable key from the request host (supports custom domains in prod)
 app.use(
+  "/api/wordwatch",
   clerkMiddleware((req) => ({
     publishableKey: publishableKeyFromHost(
       getClerkProxyHost(req) ?? "",
