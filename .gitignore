@@ -31,6 +31,8 @@ node_modules
 /.sass-cache
 /connect.lock
 /coverage
+artifacts/exam-prep/test-results/
+artifacts/exam-prep/playwright-report/
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log
