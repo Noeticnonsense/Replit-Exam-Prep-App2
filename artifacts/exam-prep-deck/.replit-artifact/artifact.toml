@@ -1,0 +1,28 @@
+kind = "slides"
+previewPath = "/exam-prep-deck/"
+title = "Exam Prep AI — Product Overview"
+description = "A nine-slide product overview covering the learner problem, Exam Prep AI user journey and features, technical architecture, reliability approach, and current project readiness."
+version = "1.0.0"
+id = "artifacts/exam-prep-deck"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/exam-prep-deck/" ]
+localPort = 20848
+
+[services.development]
+run = "pnpm --filter @workspace/exam-prep-deck run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/exam-prep-deck", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/exam-prep-deck/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20848"
+BASE_PATH = "/exam-prep-deck/"
