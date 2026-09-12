@@ -2,6 +2,10 @@ import Whop from '@whop/sdk';
 
 let clientPromise: Promise<Whop> | null = null;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 async function initWhopClient(): Promise<Whop> {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY
@@ -31,17 +35,20 @@ async function initWhopClient(): Promise<Whop> {
     );
   }
 
-  const data = await resp.json();
-  const settings = data.items?.[0]?.settings;
+  const data: unknown = await resp.json();
+  const firstItem =
+    isRecord(data) && Array.isArray(data.items) ? data.items[0] : undefined;
+  const settings = isRecord(firstItem) ? firstItem.settings : undefined;
+  const apiKey = isRecord(settings) ? settings.api_key : undefined;
 
-  if (!settings?.api_key) {
+  if (typeof apiKey !== 'string' || apiKey.length === 0) {
     throw new Error(
       'Whop integration not connected or missing credentials. ' +
         'Connect Whop via the Integrations tab first.',
     );
   }
 
-  return new Whop({ apiKey: settings.api_key });
+  return new Whop({ apiKey });
 }
 
 export function getWhopClient(): Promise<Whop> {

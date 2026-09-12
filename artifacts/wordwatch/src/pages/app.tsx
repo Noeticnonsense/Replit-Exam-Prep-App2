@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useAnalyzeText, useHumanizeText, useGetMembership, useStartCheckout, useVerifyCheckout } from '@workspace/api-client-react';
+import { getGetMembershipQueryKey, useAnalyzeText, useHumanizeText, useGetMembership, useStartCheckout, useVerifyCheckout } from '@workspace/api-client-react';
+import type { TextAnalysisInputWritingType } from '@workspace/api-client-react';
 import type { TextAnalysisResult, HumanizeResult } from '@workspace/api-client-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -197,7 +198,7 @@ function PaywallOverlay({ onUpgrade, isLoading }: { onUpgrade: () => void; isLoa
 
 export default function Home() {
   const [text, setText] = useState("");
-  const [writingType, setWritingType] = useState("essay");
+  const [writingType, setWritingType] = useState<TextAnalysisInputWritingType>("essay");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -207,7 +208,11 @@ export default function Home() {
   const verifyCheckoutMutation = useVerifyCheckout();
 
   const membershipQuery = useGetMembership({
-    query: { staleTime: 30_000, refetchOnWindowFocus: true },
+    query: {
+      queryKey: getGetMembershipQueryKey(),
+      staleTime: 30_000,
+      refetchOnWindowFocus: true,
+    },
   });
 
   const isMember = membershipQuery.data?.active === true;
@@ -354,7 +359,12 @@ export default function Home() {
             <div className="space-y-5 flex-1 flex flex-col">
               <div className="space-y-2">
                 <Label htmlFor="writing-type" className="text-foreground/80 font-medium">Form of Writing</Label>
-                <Select value={writingType} onValueChange={setWritingType}>
+                <Select
+                  value={writingType}
+                  onValueChange={(value) =>
+                    setWritingType(value as TextAnalysisInputWritingType)
+                  }
+                >
                   <SelectTrigger id="writing-type" className="bg-card border-border/50 h-12 text-base transition-colors hover:border-border">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>

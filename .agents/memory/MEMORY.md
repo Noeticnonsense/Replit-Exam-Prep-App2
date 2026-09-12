@@ -1,1 +1,2 @@
 - [Browser smoke prerequisites](browser-smoke-prerequisites.md) — Playwright needs a checked-in Nix runtime-library list and a downloaded Chromium binary in this environment.
+- [Workspace dependency checks](workspace-dependency-checks.md) — Run a lockfile install before diagnosing workspace typecheck failures when declared dev tools are missing locally.

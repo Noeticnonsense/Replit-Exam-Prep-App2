@@ -8,6 +8,29 @@ const router = Router();
 
 const PLAN_ID = process.env.WHOP_PLAN_ID!;
 
+type CheckoutConfig = {
+  id: string;
+  purchase_url: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isCheckoutConfig(value: unknown): value is CheckoutConfig {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    value.id.length > 0 &&
+    typeof value.purchase_url === "string" &&
+    value.purchase_url.length > 0
+  );
+}
+
+function isPayment(value: unknown): value is { status?: unknown } {
+  return isRecord(value);
+}
+
 function getRedirectUrl(req: any): string {
   // Build the redirect URL back to the WordWatch app
   const domains = process.env.REPLIT_DOMAINS ?? process.env.REPLIT_DEV_DOMAIN;
@@ -29,14 +52,25 @@ router.post("/checkout", requireAuth, async (req, res) => {
     const redirectUrl = getRedirectUrl(req);
 
     // Create a checkout configuration for this user
-    const checkoutConfig = await (whop as any).checkout_configurations?.create?.({
-      plan_id: PLAN_ID,
-      redirect_url: redirectUrl,
-    }) ?? await createCheckoutViaRest(redirectUrl);
+    const checkoutConfigResponse: unknown =
+      (await (
+        whop as unknown as {
+          checkout_configurations?: {
+            create?: (params: {
+              plan_id: string;
+              redirect_url: string;
+            }) => Promise<unknown>;
+          };
+        }
+      ).checkout_configurations?.create?.({
+        plan_id: PLAN_ID,
+        redirect_url: redirectUrl,
+      })) ?? (await createCheckoutViaRest(redirectUrl));
 
-    if (!checkoutConfig?.id || !checkoutConfig?.purchase_url) {
+    if (!isCheckoutConfig(checkoutConfigResponse)) {
       throw new Error("Invalid checkout config response from Whop");
     }
+    const checkoutConfig = checkoutConfigResponse;
 
     // Upsert membership row (pending, not yet active)
     await db
@@ -107,9 +141,15 @@ router.post("/checkout/verify", requireAuth, async (req, res) => {
       },
     );
 
-    const data = await resp.json();
-    const payments: any[] = data?.data ?? [];
-    const paid = payments.some((p: any) => p.status === "paid" || p.status === "complete");
+    const data: unknown = await resp.json();
+    const payments =
+      isRecord(data) && Array.isArray(data.data)
+        ? data.data.filter(isPayment)
+        : [];
+    const paid = payments.some(
+      (payment) =>
+        payment.status === "paid" || payment.status === "complete",
+    );
 
     if (paid) {
       // Activate the membership — set expiry 30 days from now
