@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useExamContext } from '@/context/ExamContext';
 import { useGetStudyGuide } from '@workspace/api-client-react';
-import { ArrowRight, FileText, Lightbulb, Copy, BrainCircuit, BookOpen } from 'lucide-react';
+import { AlertCircle, ArrowRight, FileText, Lightbulb, Copy, BrainCircuit, BookOpen } from 'lucide-react';
 import type { StudyNote, Flashcard as FlashcardType, Mnemonic } from '@workspace/api-client-react';
 
 export default function StudyGuide() {
@@ -24,6 +24,24 @@ export default function StudyGuide() {
       getStudyGuide.mutate({ data: { examName, state } });
     }
   }, [examName, state, setLocation]);
+
+  if (getStudyGuide.isError) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="h-16 w-16 text-destructive mb-6" />
+        <h2 className="text-2xl font-serif font-semibold mb-2">Failed to generate study guide</h2>
+        <p className="text-muted-foreground mb-6 max-w-md">
+          We couldn&apos;t create a complete study guide. Please try again.
+        </p>
+        <button
+          onClick={() => getStudyGuide.mutate({ data: { examName, state } })}
+          className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   if (getStudyGuide.isPending || !getStudyGuide.data) {
     return (

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
-import { GetStudyGuideBody } from "@workspace/api-zod";
+import { GetStudyGuideBody, GetStudyGuideResponse } from "@workspace/api-zod";
 
 const router = Router();
 
@@ -73,8 +73,17 @@ Requirements:
       return;
     }
 
-    const data = JSON.parse(content);
-    res.json(data);
+    const parsedResponse = GetStudyGuideResponse.safeParse(JSON.parse(content));
+    if (!parsedResponse.success) {
+      req.log.error(
+        { issues: parsedResponse.error.issues },
+        "AI returned malformed study guide",
+      );
+      res.status(502).json({ error: "AI returned malformed study guide" });
+      return;
+    }
+
+    res.json(parsedResponse.data);
   } catch (err) {
     req.log.error({ err }, "Failed to generate study guide");
     res.status(500).json({ error: "Failed to generate study guide" });

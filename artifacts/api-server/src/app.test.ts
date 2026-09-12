@@ -6,7 +6,11 @@ process.env.DATABASE_URL ??= "postgresql://test:test@127.0.0.1:5432/test";
 process.env.AI_INTEGRATIONS_OPENAI_BASE_URL ??= "http://127.0.0.1:9/v1";
 process.env.AI_INTEGRATIONS_OPENAI_API_KEY ??= "test-key";
 
-const [{ default: app }, { openai }, { GetExamInfoResponse }] = await Promise.all([
+const [
+  { default: app },
+  { openai },
+  { GetExamInfoResponse, GetMockExamResponse, GetStudyGuideResponse },
+] = await Promise.all([
   import("./app"),
   import("@workspace/integrations-openai-ai-server"),
   import("@workspace/api-zod"),
@@ -38,6 +42,49 @@ const examInfo = {
   examDayTips: ["Arrive early", "Bring approved identification"],
   keyTopics: ["Contracts", "Agency", "Property ownership"],
   stateSpecificNotes: "California requires state-specific education and testing.",
+};
+
+const studyGuide = {
+  examName: "Real Estate License",
+  state: "California",
+  studyPlan: "Review the core concepts first, then practice applying them to California-specific scenarios.",
+  notes: [
+    {
+      title: "Agency relationships",
+      content: "Understand the duties owed by each type of real estate agent.",
+      importance: "high" as const,
+    },
+  ],
+  flashcards: [
+    {
+      id: "card-1",
+      front: "What is fiduciary duty?",
+      back: "The duty to act in the client's best interest.",
+      category: "Agency",
+    },
+  ],
+  mnemonics: [
+    {
+      concept: "Fiduciary duties",
+      mnemonic: "OLD CAR",
+      explanation: "A way to remember the core duties owed to a client.",
+    },
+  ],
+  recommendedResources: ["California licensing handbook"],
+};
+
+const mockExam = {
+  examName: "Real Estate License",
+  state: "California",
+  timeLimit: 30,
+  questions: [
+    {
+      id: "q1",
+      question: "Which duty requires an agent to put the client's interests first?",
+      options: ["A. Confidentiality", "B. Loyalty", "C. Accounting", "D. Disclosure"],
+      category: "Agency",
+    },
+  ],
 };
 
 function completionFor(content: string) {
@@ -102,6 +149,72 @@ describe("API exam generation contract", () => {
     expect(response.status).toBe(502);
     expect(await response.json()).toEqual({
       error: "AI returned malformed exam information",
+    });
+  });
+
+  it("returns a structured study-guide response", async () => {
+    vi.spyOn(openai.chat.completions, "create").mockResolvedValue(
+      completionFor(JSON.stringify(studyGuide)),
+    );
+
+    const response = await fetch(`${baseUrl}/api/exam/study-guide`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examName: studyGuide.examName, state: studyGuide.state }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(GetStudyGuideResponse.parse(body)).toEqual(studyGuide);
+  });
+
+  it("rejects malformed study-guide output instead of returning it to clients", async () => {
+    vi.spyOn(openai.chat.completions, "create").mockResolvedValue(
+      completionFor(JSON.stringify({ examName: studyGuide.examName })),
+    );
+
+    const response = await fetch(`${baseUrl}/api/exam/study-guide`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examName: studyGuide.examName, state: studyGuide.state }),
+    });
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({
+      error: "AI returned malformed study guide",
+    });
+  });
+
+  it("returns a structured mock-exam response", async () => {
+    vi.spyOn(openai.chat.completions, "create").mockResolvedValue(
+      completionFor(JSON.stringify(mockExam)),
+    );
+
+    const response = await fetch(`${baseUrl}/api/exam/mock-exam`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examName: mockExam.examName, state: mockExam.state }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(GetMockExamResponse.parse(body)).toEqual(mockExam);
+  });
+
+  it("rejects malformed mock-exam output instead of returning it to clients", async () => {
+    vi.spyOn(openai.chat.completions, "create").mockResolvedValue(
+      completionFor(JSON.stringify({ examName: mockExam.examName })),
+    );
+
+    const response = await fetch(`${baseUrl}/api/exam/mock-exam`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examName: mockExam.examName, state: mockExam.state }),
+    });
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({
+      error: "AI returned malformed mock exam",
     });
   });
 });

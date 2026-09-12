@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
-import { GetMockExamBody, SubmitMockExamBody } from "@workspace/api-zod";
+import {
+  GetMockExamBody,
+  GetMockExamResponse,
+  SubmitMockExamBody,
+} from "@workspace/api-zod";
 
 const router = Router();
 
@@ -61,8 +65,17 @@ Requirements:
       return;
     }
 
-    const data = JSON.parse(content);
-    res.json(data);
+    const parsedResponse = GetMockExamResponse.safeParse(JSON.parse(content));
+    if (!parsedResponse.success) {
+      req.log.error(
+        { issues: parsedResponse.error.issues },
+        "AI returned malformed mock exam",
+      );
+      res.status(502).json({ error: "AI returned malformed mock exam" });
+      return;
+    }
+
+    res.json(parsedResponse.data);
   } catch (err) {
     req.log.error({ err }, "Failed to generate mock exam");
     res.status(500).json({ error: "Failed to generate mock exam" });

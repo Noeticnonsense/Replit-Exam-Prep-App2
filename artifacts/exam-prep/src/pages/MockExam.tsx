@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useExamContext } from '@/context/ExamContext';
 import { useGetMockExam, useSubmitMockExam } from '@workspace/api-client-react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 
 export default function MockExam() {
   const [, setLocation] = useLocation();
@@ -101,7 +101,11 @@ export default function MockExam() {
   if (getMockExam.isError || !getMockExam.data) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <AlertCircle className="h-16 w-16 text-destructive mb-6" />
         <h2 className="text-2xl font-serif font-semibold mb-4">Failed to generate mock exam</h2>
+        <p className="text-muted-foreground mb-6 max-w-md">
+          We couldn&apos;t create a complete mock exam. Please try again.
+        </p>
         <button onClick={() => getMockExam.mutate({ data: { examName, state, questionCount: 20 } })} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors">
           Try Again
         </button>
