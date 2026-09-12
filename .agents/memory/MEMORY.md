@@ -1,0 +1,1 @@
+- [Browser smoke prerequisites](browser-smoke-prerequisites.md) — Playwright needs a checked-in Nix runtime-library list and a downloaded Chromium binary in this environment.

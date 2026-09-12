@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
-import { GetExamInfoBody } from "@workspace/api-zod";
+import { GetExamInfoBody, GetExamInfoResponse } from "@workspace/api-zod";
 
 const router = Router();
 
@@ -57,8 +57,17 @@ Be specific to ${state} regulations and requirements. Include at least 4 eligibi
       return;
     }
 
-    const data = JSON.parse(content);
-    res.json(data);
+    const parsedResponse = GetExamInfoResponse.safeParse(JSON.parse(content));
+    if (!parsedResponse.success) {
+      req.log.error(
+        { issues: parsedResponse.error.issues },
+        "AI returned malformed exam info",
+      );
+      res.status(502).json({ error: "AI returned malformed exam information" });
+      return;
+    }
+
+    res.json(parsedResponse.data);
   } catch (err) {
     req.log.error({ err }, "Failed to generate exam info");
     res.status(500).json({ error: "Failed to generate exam information" });

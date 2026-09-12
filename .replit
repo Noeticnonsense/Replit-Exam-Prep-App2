@@ -30,3 +30,4 @@ WHOP_PLAN_ID = "plan_8QGhfKh37k1yU"
 
 [nix]
 channel = "stable-25_05"
+packages = ["glib", "nss", "nspr", "atk", "at-spi2-atk", "cups", "dbus", "expat", "libdrm", "mesa", "pango", "cairo", "alsa-lib", "gtk3", "libgbm", "libxkbcommon", "xorg.libX11", "xorg.libxcb", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXfixes", "xorg.libXrandr", "xorg.libXext", "xorg.libXi", "xorg.libXtst", "xorg.libxshmfence", "fontconfig", "freetype"]

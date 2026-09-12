@@ -8,6 +8,7 @@ An AI-powered exam preparation app. Enter any exam name and state to get an up-t
 - `pnpm --filter @workspace/exam-prep run dev` — run the frontend (port 25513)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
+- `pnpm test` — run the API contract tests and browser smoke test for the exam-generation flow
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Replit provisions `DATABASE_URL` and the `AI_INTEGRATIONS_OPENAI_*` values used by the app.
