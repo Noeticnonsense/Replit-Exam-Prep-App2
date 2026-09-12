@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "nC2xHLyezKnNgR80RXDc4"
+uri = "file://docs/exam-prep-ai-user-manual.pdf"
+type = "pdf"
+title = "Exam Prep AI — User Manual"
+description = "Six-page user guide covering app features, the complete study workflow, mock exams, results, expectations, best practices, and troubleshooting."
+logical_id = "9f41f10d-0e4b-4ed8-820d-6169a4c2de72"
+content_hash = "sha256:26486908f57f6c9fbc22d0edff2779984cef6a4e838094685c852335a67ee250"
+size = 112876
+mtime_ms = 1789179690055
+storage_uri = "gcs://replit-rams-assets-kirk/rams/assets/repl:1c60bfd2-796e-4ab5-a45a-1a21cad925a0/9f41f10d-0e4b-4ed8-820d-6169a4c2de72/bccaf01c-6b56-49e1-8054-d4c1e17d4a58"
+storage_version_token = "1789179697326278"
+content_type = "application/pdf"
